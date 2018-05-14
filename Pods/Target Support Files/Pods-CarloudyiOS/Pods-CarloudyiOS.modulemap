@@ -1,0 +1,6 @@
+framework module Pods_CarloudyiOS {
+  umbrella header "Pods-CarloudyiOS-umbrella.h"
+
+  export *
+  module * { export * }
+}
