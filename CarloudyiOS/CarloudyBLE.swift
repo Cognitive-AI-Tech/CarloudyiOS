@@ -34,6 +34,12 @@ open class CarloudyBLE: NSObject {
         super.init()
     }
     
+    open func sendMessage(prefix : String, message : String){
+        let str = prefix + message
+        let data = stringToData(str: str)
+        sendDataToPeripheral(data: data as NSData)
+    }
+    
     
     open func sendDataToPeripheral(data: NSData) {
         dataToSend = data
@@ -104,11 +110,12 @@ extension CarloudyBLE{
         let dataToSend = stringToData(str: stringToSend)
         sendDataToPeripheral(data: dataToSend as NSData)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.newKeySendToPairAndorid_ = "\(random6Num)1111111111"
             finish(random6Num)
         }
     }
     
-    open func toCarloudyApp(_ sender: Any) {
+    open func toCarloudyApp() {
         let url = URL(string: "CarloudyiOS://")
         guard url != nil else {
             return
