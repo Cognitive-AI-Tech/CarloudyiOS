@@ -27,45 +27,82 @@ open class CarloudyBLE: NSObject {
     open let defaultKeySendToPairAndorid_ = "passwordpassword"
     open var newKeySendToPairAndorid_ = "passwordpassword"
     open var peripheralManager = CBPeripheralManager()
-    open var dataToSend: NSData!
-    open var datastring: String!
-    //    var delegate: BLECentralDelegate?
+    
+    ///The array saved all datas
+    var dataArray : Array<String> = []
+    open var dataArrayTimerInterval = 0.15
+    weak var dataArrayTimer : Timer?
+    
     public override init() {
         super.init()
     }
     
-    open func sendMessage(prefix : String, message : String){
-        let str = prefix + message
-        let data = stringToData(str: str)
+    open func sendMessageForSplit(prefix : String, message : String){
+        if prefix.count > 2{
+            print("prefix better has 2 characters")
+        }
+        
+        let maxLenthEachData = 11
+        let datasCount = Int(ceil(Double(message.count) / Double(maxLenthEachData)))
+        let startingValue = Int(("0" as UnicodeScalar).value) // 48
+        let total = Character(UnicodeScalar(datasCount + startingValue)!)
+        
+        for index in 0..<datasCount{
+            let i2 = Character(UnicodeScalar(index + startingValue)!)
+            var piece = ""
+            if (message.count - (maxLenthEachData * index)) > maxLenthEachData{
+                piece = "\(total)\(i2)\(prefix)\(message[(maxLenthEachData * index)..<(maxLenthEachData * (index + 1) - 1)])"
+            }else{
+                piece = "\(total)\(i2)\(prefix)\(message[(maxLenthEachData * index)..<(message.count-1)])"
+            }
+            dataArray.append(piece)
+        }
+        openDataArrayTimer()
+    }
+    
+    func openDataArrayTimer(){
+        guard dataArrayTimer == nil else {
+            return
+        }
+        dataArrayTimer =  Timer.scheduledTimer(withTimeInterval: dataArrayTimerInterval, repeats: true) { (_) in
+            if self.dataArray.count > 0{
+                let stringToSend = self.dataArray.first
+                self.dataArray.removeFirst()
+                self.sendMessage(message: stringToSend ?? "")
+            }else{
+                self.dataArrayTimer?.invalidate()
+            }
+        }
+    }
+    
+    fileprivate func sendMessage(message : String){
+        let data = stringToData(str: message)
         sendDataToPeripheral(data: data as NSData)
     }
     
     
     open func sendDataToPeripheral(data: NSData) {
-        dataToSend = data
-        startAdvertisingToPeripheral()
+        let dataToSend = data
+        startAdvertisingToPeripheral(dataToSend: dataToSend)
     }
     
-    open func startAdvertisingToPeripheral() {
-        if (dataToSend != nil){
-            datastring = NSString(data:dataToSend as Data, encoding:String.Encoding.utf8.rawValue)! as String
-            //            datastring = getAlphaNumericValue(str: datastring)
-            let time1 = 130
-            let time2 =  20
-            let time = DispatchTime.now() + .milliseconds(time2)          //10
-            let stop = DispatchTime.now() + .milliseconds(time1)      //140
-            do {
-                let aes = try AES(key: newKeySendToPairAndorid_, iv: "drowssapdrowssap", padding: .pkcs7)
-                let ciphertext = try aes.encrypt(Array(datastring.utf8))
-                DispatchQueue.main.asyncAfter(deadline: time) {
-                    () -> Void in self.sendMessage(message: ciphertext );
-                }
-                DispatchQueue.main.asyncAfter(deadline: stop) {
-                    () -> Void in self.peripheralManager.stopAdvertising();
-                }
-            } catch { }
-            
-        }
+    open func startAdvertisingToPeripheral(dataToSend : NSData) {
+        let datastring = NSString(data:dataToSend as Data, encoding:String.Encoding.utf8.rawValue)! as String
+        //            datastring = getAlphaNumericValue(str: datastring)
+        let time1 = 130
+        let time2 =  20
+        let time = DispatchTime.now() + .milliseconds(time2)          //10
+        let stop = DispatchTime.now() + .milliseconds(time1)      //140
+        do {
+            let aes = try AES(key: newKeySendToPairAndorid_, iv: "drowssapdrowssap", padding: .pkcs7)
+            let ciphertext = try aes.encrypt(Array(datastring.utf8))
+            DispatchQueue.main.asyncAfter(deadline: time) {
+                () -> Void in self.sendMessage(message: ciphertext );
+            }
+            DispatchQueue.main.asyncAfter(deadline: stop) {
+                () -> Void in self.peripheralManager.stopAdvertising();
+            }
+        } catch { }
     }
     
     open func stringToData(str : String) -> Data{
