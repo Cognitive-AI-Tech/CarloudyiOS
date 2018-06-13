@@ -9,14 +9,14 @@
 import UIKit
 import CoreLocation
 
-protocol CarloudyLocationDelegate: class {
+public protocol CarloudyLocationDelegate {
     func carloudyLocation(speed : CLLocationSpeed)
     func carloudyLocation(locationName: String, street: String, city: String, zipCode: String, country: String)
 }
 
-class CarloudyLocation: NSObject, CLLocationManagerDelegate{
+open class CarloudyLocation: NSObject, CLLocationManagerDelegate{
     
-    lazy var locationManager: CLLocationManager = {
+    open lazy var locationManager: CLLocationManager = {
         var _locationManager = CLLocationManager()
         _locationManager.delegate = self
         _locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
@@ -32,16 +32,16 @@ class CarloudyLocation: NSObject, CLLocationManagerDelegate{
     var sendAddressDelayTimesIndex = 0
     open var sendSpeed : Bool
     open var sendAddress : Bool
-    weak var delegate : CarloudyLocationDelegate?
+    open var delegate : CarloudyLocationDelegate?
     
-    init(sendSpeed : Bool = true, sendAddress : Bool = false) {
+    public init(sendSpeed : Bool = true, sendAddress : Bool = false) {
         self.sendSpeed = sendSpeed
         self.sendAddress = sendAddress
         super.init()
     }
     
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print(manager.location?.speed ?? 0)
         if sendSpeed{
             self.delegate?.carloudyLocation(speed: (manager.location?.speed) ?? 0)
@@ -57,7 +57,7 @@ class CarloudyLocation: NSObject, CLLocationManagerDelegate{
         
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error: \(error.localizedDescription)")
     }
     
