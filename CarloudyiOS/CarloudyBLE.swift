@@ -9,6 +9,7 @@
 import Foundation
 import CoreBluetooth
 import CryptoSwift
+import CoreLocation
 
 extension String {
     subscript  (r: Range<Int>) -> String {
@@ -23,9 +24,17 @@ extension String {
 
 open class CarloudyBLE: NSObject {
     
-    open static let shareInstance : CarloudyBLE = CarloudyBLE()
+    open static let shareInstance : CarloudyBLE = {
+        let ble = CarloudyBLE()
+        ble.getPairKey()
+        return ble
+    }()
     open let defaultKeySendToPairAndorid_ = "passwordpassword"
-    open var newKeySendToPairAndorid_ = "passwordpassword"
+    open var newKeySendToPairAndorid_ = "passwordpassword"{
+        didSet{
+            savePairKey()
+        }
+    }
     open var peripheralManager = CBPeripheralManager()
     
     ///The array saved all datas
@@ -37,9 +46,20 @@ open class CarloudyBLE: NSObject {
         super.init()
     }
     
-    open func sendMessageForSplit(prefix : String, message : String){
+    /// highPriority only works if message.count less or equal than maxLenthEachData = 11
+    ///if u set coverTheFront ture, all the elements in dataArray with same prefix will be removed.
+    open func sendMessageForSplit(prefix : String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
         if prefix.count > 2{
             print("prefix better has 2 characters")
+        }
+        if coverTheFront == true{
+            for (index, data) in dataArray.enumerated(){
+                if String(data[data.index(data.startIndex, offsetBy: 2)..<data.index(data.startIndex, offsetBy: 4)]) == prefix{
+                    sync(lock: dataArray, closure: {
+                        self.dataArray.remove(at: index)
+                    })
+                }
+            }
         }
         
         let maxLenthEachData = 11
@@ -48,6 +68,7 @@ open class CarloudyBLE: NSObject {
         let total = Character(UnicodeScalar(datasCount + startingValue)!)
         
         for index in 0..<datasCount{
+            
             let i2 = Character(UnicodeScalar(index + startingValue)!)
             var piece = ""
             if (message.count - (maxLenthEachData * index)) > maxLenthEachData{
@@ -55,7 +76,23 @@ open class CarloudyBLE: NSObject {
             }else{
                 piece = "\(total)\(i2)\(prefix)\(message[(maxLenthEachData * index)..<(message.count-1)])"
             }
-            dataArray.append(piece)
+            
+            if highPriority == true && piece.hasPrefix("10"){
+                //                for (index, data) in dataArray.enumerated(){
+                //                    if data.hasPrefix("10\(prefix)"){
+                //                        dataArray.remove(at: index)
+                //                    }
+                //                }
+                //                dataArray.insert(piece, at: 0)
+                sync(lock: dataArray as Array<Any>, closure: {
+                    dataArray.insert(piece, at: 0)
+                })
+            }else{
+                sync(lock: dataArray as Array<Any>, closure: {
+                    dataArray.append(piece)
+                })
+            }
+            
         }
         openDataArrayTimer()
     }
@@ -67,7 +104,10 @@ open class CarloudyBLE: NSObject {
         dataArrayTimer =  Timer.scheduledTimer(withTimeInterval: dataArrayTimerInterval, repeats: true) { (_) in
             if self.dataArray.count > 0{
                 let stringToSend = self.dataArray.first
-                self.dataArray.removeFirst()
+                print("-------------dataArray.count: --\(self.dataArray.count)")
+                self.sync(lock: self.dataArray, closure: {
+                    self.dataArray.removeFirst()
+                })
                 self.sendMessage(message: stringToSend ?? "")
             }else{
                 self.dataArrayTimer?.invalidate()
@@ -163,6 +203,46 @@ extension CarloudyBLE{
             print("user did not install Carloudy app")
         }
     }
+    
+    
+    
 }
 
+//MARK: -- pairkey
+extension CarloudyBLE{
+    
+    open func openUrl(url: URL){
+        let urlStr = String(describing: url)
+        if let pairKey = urlStr.components(separatedBy: "://").last{
+            newKeySendToPairAndorid_ = pairKey
+            print("2----\(newKeySendToPairAndorid_)")
+        }
+    }
+    
+    open func savePairKey(){
+        UserDefaults.standard.set(newKeySendToPairAndorid_, forKey: "newKeySendToPairAndorid_")
+    }
+    
+    open func getPairKey(){
+        if UserDefaults.standard.object(forKey: "newKeySendToPairAndorid_") != nil {
+            newKeySendToPairAndorid_ = UserDefaults.standard.object(forKey: "newKeySendToPairAndorid_") as! String
+        }
+    }
+}
+
+
+///数组安全问题
+extension CarloudyBLE{
+    func sync(lock: Array<Any>, closure: () -> Void) {
+        objc_sync_enter(lock)
+        closure()
+        objc_sync_exit(lock)
+    }
+    /*
+     var list = NSMutableArray()
+     sync (list) {
+     list.addObject("something")
+     }
+     */
+}
 
