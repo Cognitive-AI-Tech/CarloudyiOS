@@ -44,7 +44,7 @@ class CarloudyLocation: NSObject, CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print(manager.location?.speed ?? 0)
         if sendSpeed{
-           self.delegate?.carloudyLocation(speed: (manager.location?.speed) ?? 0)
+            self.delegate?.carloudyLocation(speed: (manager.location?.speed) ?? 0)
         }
         if sendAddress && sendAddressDelayTimesIndex == 0{
             reverseCoordinateToAddress(latitude: (locations.last?.coordinate.latitude)!, longtitude: (locations.last?.coordinate.longitude)!)
@@ -112,6 +112,7 @@ class CarloudyLocation: NSObject, CLLocationManagerDelegate{
         })
     }
 }
+
 
 
 
