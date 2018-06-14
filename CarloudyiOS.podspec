@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "CarloudyiOS"
-  s.version      = "1.04.1"
+  s.version      = "1.04.2"
   s.summary      = "CarloudyiOS first version"
   s.swift_version = "4.0"
 

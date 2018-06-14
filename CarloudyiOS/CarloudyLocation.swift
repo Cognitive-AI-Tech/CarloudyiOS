@@ -42,9 +42,11 @@ open class CarloudyLocation: NSObject, CLLocationManagerDelegate{
     
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print(manager.location?.speed ?? 0)
+        
         if sendSpeed{
-            self.delegate?.carloudyLocation(speed: (manager.location?.speed) ?? 0)
+            let MperS = manager.location?.speed ?? 0
+            let milePerHour = Int(MperS * 2.23694 + 0.5)
+            self.delegate?.carloudyLocation(speed: milePerHour)
         }
         if sendAddress && sendAddressDelayTimesIndex == 0{
             reverseCoordinateToAddress(latitude: (locations.last?.coordinate.latitude)!, longtitude: (locations.last?.coordinate.longitude)!)
