@@ -41,17 +41,61 @@ open class CarloudyBLE: NSObject {
     var dataArray : Array<String> = []
     open var dataArrayTimerInterval = 0.15
     weak var dataArrayTimer : Timer?
+    public let startNewSessionPrefixKey = "z0"
+    public let createNewTextViewPrefixKey = "za"
+    public let sendNewTextViewPrefixKey = "zb"
     
     public override init() {
         super.init()
     }
     
+    open func startANewSession1(id: String){
+        print("----startANewSession")
+        sendMessageForSplit(prefix: startNewSessionPrefixKey, message: id)
+    }
+    
+    fileprivate func twoletters(number: Int) -> String{
+        let str = String(number)
+        if str.count == 2{
+            return str
+        }
+        if str.count == 1{
+            let tempStr = "0" + str
+            return tempStr
+        }
+        print("labelTextSize, postionX, postionY, width, height must be 2 digits")
+        return ""
+    }
+    
+    open func createIDAndViewForCarloudyHud(id: String, labelTextSize: Int, postionX: Int, postionY: Int, width: Int, height: Int){
+        //检测 必须是两位数 如果不是两位数 则前边加0
+        let labelTextSizeString = twoletters(number: labelTextSize)
+        let postionXString = twoletters(number: postionX)
+        let postionYString = twoletters(number: postionY)
+        let widthString = twoletters(number: width)
+        let heightString = twoletters(number: height)
+        
+        let finalStr = id + labelTextSizeString + postionXString + postionYString + widthString + heightString
+        sendMessageForSplit(prefix: createNewTextViewPrefixKey, message: finalStr)
+        
+    }
+    
+    open func sendMessage(id: String, message: String){
+        let finalStr = id + message
+        sendMessageForSplit(prefix: sendNewTextViewPrefixKey, message: finalStr)
+    }
+    
+    open func sendMessage(id: String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
+        let finalStr = id + message
+        sendMessageForSplit(prefix: sendNewTextViewPrefixKey, message: finalStr, highPriority: highPriority, coverTheFront: coverTheFront)
+    }
+    
     /// highPriority only works if message.count less or equal than maxLenthEachData = 11
     ///if u set coverTheFront ture, all the elements in dataArray with same prefix will be removed.
-    open func sendMessageForSplit(prefix : String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
-        if prefix.count > 2{
-            print("prefix better has 2 characters")
-        }
+    fileprivate func sendMessageForSplit(prefix : String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
+        //        if prefix.count > 2{
+        //            print("prefix better has 2 characters")
+        //        }
         if coverTheFront == true{
             for (index, data) in dataArray.enumerated(){
                 if String(data[data.index(data.startIndex, offsetBy: 2)..<data.index(data.startIndex, offsetBy: 4)]) == prefix{
