@@ -44,10 +44,18 @@ open class CarloudyBLE: NSObject {
     public let startNewSessionPrefixKey = "z0"
     public let createNewTextViewPrefixKey = "za"
     public let sendNewTextViewPrefixKey = "zb"
+    public let createNewImageNewPrefixKey = "zc"
+    public let otherCommandPrefixKey = "zd"
     
     public override init() {
         super.init()
     }
+    
+    
+    /// “z0” + “(app_id)”
+    /// Example: z0a5ef3350
+    /// This message must be sent prior to other related commands.
+    /// - Parameter id: app_id (8): provided by Carloudy after user registered account. Will define folders and start a new session belongs to the specific app.
     
     open func startANewSession1(id: String){
         print("----startANewSession")
@@ -67,6 +75,17 @@ open class CarloudyBLE: NSObject {
         return ""
     }
     
+    
+    
+    /// “za” + “(id)” + “(font size)” + “(x)” + “(y)” + “(width)” + “(height)”   Example: za13205364200, This command must be sent prior to “zb” commands.
+    ///
+    /// - Parameters:
+    ///   - id: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections
+    ///   - labelTextSize: (2) [01-99]: font size for texts in display section; “00” for default size
+    ///   - postionX: (2) [00-90]: position-x for display section
+    ///   - postionY: (2) [00-72]: position-y for display section
+    ///   - width: (2) [01-90]: width for display section; “00” for auto fit width
+    ///   - height: (2) [01-72]: height for display section; “00” for auto fit height
     open func createIDAndViewForCarloudyHud(id: String, labelTextSize: Int, postionX: Int, postionY: Int, width: Int, height: Int){
         //检测 必须是两位数 如果不是两位数 则前边加0
         let labelTextSizeString = twoletters(number: labelTextSize)
@@ -80,14 +99,59 @@ open class CarloudyBLE: NSObject {
         
     }
     
+    
+    
+    /// “zc” + “(pic_id)” + “(x)” + “(y)” + “(width)” + “(height)”, Example: zc0100563030, This command must be sent after “z0”. Otherwise, it’s meaningless and will be ignored. The picture to display will keep the original aspect ratio. Command only has “pic_id” without other parameters will remove the image.
+    ///
+    /// - Parameters:
+    ///   - picID: (2) [0-9, a-z]: unique id for picture to display. The “pic_id” must be the same as the picture name uploaded by the user
+    ///   - postionX: (2) [00-90]: position-x for display section
+    ///   - postionY: (2) [00-72]: position-y for display section
+    ///   - width: (2) [01-90]: width for display section; “00” for auto fit width
+    ///   - height: (2) [01-72]: height for display section; “00” for auto fit height
+    open func createPictureIDAndImageViewForCarloudyHUD(picID: String, postionX: Int, postionY: Int, width: Int, height: Int){
+        let postionXString = twoletters(number: postionX)
+        let postionYString = twoletters(number: postionY)
+        let widthString = twoletters(number: width)
+        let heightString = twoletters(number: height)
+        let finalStr = picID + postionXString + postionYString + widthString + heightString
+        sendMessageForSplit(prefix: createNewImageNewPrefixKey, message: finalStr)
+    }
+    
+    
+    /// “zb” + “(id)” + “(text)”, Example: zb1Hello, World!, This command must be sent after “za” and “z0”. Otherwise, it’s meaningless and will be ignored. This command can be used to replace old text with “text” only for the specific “id” after “za” has been received and without sending “za” again.
+    ///
+    /// - Parameters:
+    ///   - id: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections.
+    ///   - message: text string for display section
     open func sendMessage(id: String, message: String){
         let finalStr = id + message
         sendMessageForSplit(prefix: sendNewTextViewPrefixKey, message: finalStr)
     }
     
+    
+    
+    /// “zb” + “(id)” + “(text)”, Example: zb1Hello, World!, This command must be sent after “za” and “z0”. Otherwise, it’s meaningless and will be ignored. This command can be used to replace old text with “text” only for the specific “id” after “za” has been received and without sending “za” again.
+    ///
+    /// - Parameters:
+    ///   - id: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections.
+    ///   - message: text string for display section
+    ///   - highPriority: default is false,
+    ///   - coverTheFront: default is false, will overwrite the data if it is true.
     open func sendMessage(id: String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
         let finalStr = id + message
         sendMessageForSplit(prefix: sendNewTextViewPrefixKey, message: finalStr, highPriority: highPriority, coverTheFront: coverTheFront)
+    }
+    
+    
+    /// “zd” + “(command_id)” + “(app_id)”, Example: zd2a5ef3350, This command must be sent after “z0”. Otherwise, it’s meaningless and will be ignored.
+    ///
+    /// - Parameters:
+    ///   - commandID: (1) [0-9]: 0: remove all contents on display,  1: stop / exit display session, 2: heartbeat signal without any messages, for display session staying alive
+    ///   - AppID: (8): provided by Carloudy after user registered account
+    open func sendAppCommand(commandID: String, AppID: String){
+        let finalStr = commandID + AppID
+        sendMessageForSplit(prefix: otherCommandPrefixKey, message: finalStr)
     }
     
     /// highPriority only works if message.count less or equal than maxLenthEachData = 11
