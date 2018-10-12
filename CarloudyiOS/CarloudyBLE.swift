@@ -24,12 +24,12 @@ extension String {
 
 open class CarloudyBLE: NSObject {
     
-    open static let shareInstance : CarloudyBLE = {
+    public static let shareInstance : CarloudyBLE = {
         let ble = CarloudyBLE()
         ble.getPairKey()
         return ble
     }()
-    open let defaultKeySendToPairAndorid_ = "passwordpassword"
+    public let defaultKeySendToPairAndorid_ = "passwordpassword"
     open var newKeySendToPairAndorid_ = "passwordpassword"{
         didSet{
             savePairKey()
@@ -55,11 +55,11 @@ open class CarloudyBLE: NSObject {
     /// “z0” + “(app_id)”
     /// Example: z0a5ef3350
     /// This message must be sent prior to other related commands.
-    /// - Parameter id: app_id (8): provided by Carloudy after user registered account. Will define folders and start a new session belongs to the specific app.
+    /// - Parameter appId: app_id (8): provided by Carloudy after user registered account(register your app and get appId at betastore.carloudy.com). Will define folders and start a new session belongs to the specific app.
     
-    open func startANewSession1(id: String){
+    open func startANewSession(appId: String){
         print("----startANewSession")
-        sendMessageForSplit(prefix: startNewSessionPrefixKey, message: id)
+        sendMessageForSplit(prefix: startNewSessionPrefixKey, message: appId)
     }
     
     fileprivate func twoletters(number: Int) -> String{
@@ -77,16 +77,16 @@ open class CarloudyBLE: NSObject {
     
     
     
-    /// “za” + “(id)” + “(font size)” + “(x)” + “(y)” + “(width)” + “(height)”   Example: za13205364200, This command must be sent prior to “zb” commands.
+    /// “za” + “(textViewId)” + “(font size)” + “(x)” + “(y)” + “(width)” + “(height)”   Example: za13205364200, This command must be sent prior to “zb” commands.
     ///
     /// - Parameters:
-    ///   - id: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections
+    ///   - textViewId: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections
     ///   - labelTextSize: (2) [01-99]: font size for texts in display section; “00” for default size
     ///   - postionX: (2) [00-90]: position-x for display section
     ///   - postionY: (2) [00-72]: position-y for display section
     ///   - width: (2) [01-90]: width for display section; “00” for auto fit width
     ///   - height: (2) [01-72]: height for display section; “00” for auto fit height
-    open func createIDAndViewForCarloudyHud(id: String, labelTextSize: Int, postionX: Int, postionY: Int, width: Int, height: Int){
+    open func createIDAndViewForCarloudyHud(textViewId: String, labelTextSize: Int, postionX: Int, postionY: Int, width: Int, height: Int){
         //检测 必须是两位数 如果不是两位数 则前边加0
         let labelTextSizeString = twoletters(number: labelTextSize)
         let postionXString = twoletters(number: postionX)
@@ -94,7 +94,7 @@ open class CarloudyBLE: NSObject {
         let widthString = twoletters(number: width)
         let heightString = twoletters(number: height)
         
-        let finalStr = id + labelTextSizeString + postionXString + postionYString + widthString + heightString
+        let finalStr = textViewId + labelTextSizeString + postionXString + postionYString + widthString + heightString
         sendMessageForSplit(prefix: createNewTextViewPrefixKey, message: finalStr)
         
     }
@@ -119,27 +119,27 @@ open class CarloudyBLE: NSObject {
     }
     
     
-    /// “zb” + “(id)” + “(text)”, Example: zb1Hello, World!, This command must be sent after “za” and “z0”. Otherwise, it’s meaningless and will be ignored. This command can be used to replace old text with “text” only for the specific “id” after “za” has been received and without sending “za” again.
+    /// “zb” + “(textViewId)” + “(text)”, Example: zb1Hello, World!, This command must be sent after “za” and “z0”. Otherwise, it’s meaningless and will be ignored. This command can be used to replace old text with “text” only for the specific “id” after “za” has been received and without sending “za” again.
     ///
     /// - Parameters:
-    ///   - id: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections.
+    ///   - textViewId: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections.
     ///   - message: text string for display section
-    open func sendMessage(id: String, message: String){
-        let finalStr = id + message
+    open func sendMessage(textViewId: String, message: String){
+        let finalStr = textViewId + message
         sendMessageForSplit(prefix: sendNewTextViewPrefixKey, message: finalStr)
     }
     
     
     
-    /// “zb” + “(id)” + “(text)”, Example: zb1Hello, World!, This command must be sent after “za” and “z0”. Otherwise, it’s meaningless and will be ignored. This command can be used to replace old text with “text” only for the specific “id” after “za” has been received and without sending “za” again.
+    /// “zb” + “(textViewId)” + “(text)”, Example: zb1Hello, World!, This command must be sent after “za” and “z0”. Otherwise, it’s meaningless and will be ignored. This command can be used to replace old text with “text” only for the specific “id” after “za” has been received and without sending “za” again.
     ///
     /// - Parameters:
-    ///   - id: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections.
+    ///   - textViewId: (1) [0-9, a-z]: User defined display section id for distinguishing among other display sections.
     ///   - message: text string for display section
     ///   - highPriority: default is false,
     ///   - coverTheFront: default is false, will overwrite the data if it is true.
-    open func sendMessage(id: String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
-        let finalStr = id + message
+    open func sendMessage(textViewId: String, message : String, highPriority : Bool = false, coverTheFront: Bool = false){
+        let finalStr = textViewId + message
         sendMessageForSplit(prefix: sendNewTextViewPrefixKey, message: finalStr, highPriority: highPriority, coverTheFront: coverTheFront)
     }
     
@@ -148,9 +148,9 @@ open class CarloudyBLE: NSObject {
     ///
     /// - Parameters:
     ///   - commandID: (1) [0-9]: 0: remove all contents on display,  1: stop / exit display session, 2: heartbeat signal without any messages, for display session staying alive
-    ///   - AppID: (8): provided by Carloudy after user registered account
-    open func sendAppCommand(commandID: String, AppID: String){
-        let finalStr = commandID + AppID
+    ///   - appId: (8): provided by Carloudy after user registered account(register your app and get appId at betastore.carloudy.com)
+    open func sendAppCommand(commandID: String, appId: String){
+        let finalStr = commandID + appId
         sendMessageForSplit(prefix: otherCommandPrefixKey, message: finalStr)
     }
     
