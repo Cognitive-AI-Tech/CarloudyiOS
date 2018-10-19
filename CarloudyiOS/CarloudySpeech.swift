@@ -11,9 +11,9 @@ import Speech
 
 open class CarloudySpeech: NSObject, SFSpeechRecognizerDelegate {
     
-    open let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US"))!
-    open let audioSession = AVAudioSession.sharedInstance()
-    open let audioEngine = AVAudioEngine()
+    public let speechRecognizer = SFSpeechRecognizer(locale: Locale.init(identifier: "en-US"))!
+    public let audioSession = AVAudioSession.sharedInstance()
+    public let audioEngine = AVAudioEngine()
     open var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     open var recognitionTask: SFSpeechRecognitionTask?
     open var text_copy_ = ""

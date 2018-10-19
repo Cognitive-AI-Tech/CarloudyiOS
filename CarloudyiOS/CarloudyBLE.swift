@@ -10,6 +10,7 @@ import Foundation
 import CoreBluetooth
 import CryptoSwift
 import CoreLocation
+import SystemConfiguration.CaptiveNetwork
 
 extension String {
     subscript  (r: Range<Int>) -> String {
@@ -284,6 +285,75 @@ open class CarloudyBLE: NSObject {
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [CBUUID(string: messageUUID)]])
     }
     
+    
+    
+}
+
+//Updata images from server, Wifi
+extension CarloudyBLE{
+    
+    open func alertViewToUpdateImagesFromServer(){
+        let alert = UIAlertController(title: "Update images", message: "Let Carloudy connect to Wifi, please make sure 2.4G WIFI only!", preferredStyle: UIAlertController.Style.alert)
+        let updateAction = UIAlertAction(title: "Update", style: .default) { (alertAction) in
+            guard let wifi = alert.textFields?[0].text,
+                let passWord = alert.textFields?[1].text else{
+                    return
+            }
+            if wifi == "" || passWord == ""{
+                let badFormAlert = UIAlertController(title: "warning", message: "Bad format, please try it again", preferredStyle: .alert)
+                let okAction = UIAlertAction(title: "OK", style: .default, handler: { (alertAction) in})
+                badFormAlert.addAction(okAction)
+                if let topController = UIApplication.topViewController() {
+                    topController.present(badFormAlert, animated:true, completion: nil)
+                }
+                return
+            }else{
+                let feedBackAlert = UIAlertController(title: "Note", message: "Wifi and password were sent to Carloudy, please check your Carloudy device to update. if it doesn't work please try it agin", preferredStyle: .alert)
+                let okAction = UIAlertAction(title: "OK", style: .default, handler: { (alertAction) in})
+                feedBackAlert.addAction(okAction)
+                if let topController = UIApplication.topViewController() {
+                    topController.present(feedBackAlert, animated:true, completion: nil)
+                }
+                
+            }
+            self.sendMessageForSplit(prefix: "cu", message: wifi)
+            self.sendMessageForSplit(prefix: "cp", message: passWord)
+            self.sendMessageForSplit(prefix: "cu", message: wifi)
+            self.sendMessageForSplit(prefix: "cp", message: passWord)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default) { (alertAction) in}
+        alert.addTextField { (textField) in
+            if let ssid = self.getWiFiSsid(){
+                textField.text = ssid
+            }else{
+                textField.placeholder = "Enter Your Wifi"
+            }
+        }
+        alert.addTextField { (textField) in
+            textField.placeholder = "Enter Your Password"
+        }
+        alert.addAction(cancelAction)
+        alert.addAction(updateAction)
+        if let topController = UIApplication.topViewController() {
+            topController.present(alert, animated:true, completion: nil)
+        }
+        
+    }
+    
+    
+    /// if this func does not work, you need turn your Access WIFI Information on if necessary.
+    func getWiFiSsid() -> String? {
+        var ssid: String?
+        if let interfaces = CNCopySupportedInterfaces() as NSArray? {
+            for interface in interfaces {
+                if let interfaceInfo = CNCopyCurrentNetworkInfo(interface as! CFString) as NSDictionary? {
+                    ssid = interfaceInfo[kCNNetworkInfoKeySSID as String] as? String
+                    break
+                }
+            }
+        }
+        return ssid
+    }
 }
 
 extension CarloudyBLE{
