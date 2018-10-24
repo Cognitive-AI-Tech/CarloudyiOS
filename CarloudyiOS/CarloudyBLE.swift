@@ -47,6 +47,8 @@ open class CarloudyBLE: NSObject {
     public let sendNewTextViewPrefixKey = "zb"
     public let createNewImageNewPrefixKey = "zc"
     public let otherCommandPrefixKey = "zd"
+    public let updateImagesWithoutUpdateOTASSID = "cv"
+    public let updateImagesWithoutUpdateOTAPassword = "cq"
     
     public override init() {
         super.init()
@@ -316,10 +318,10 @@ extension CarloudyBLE{
                 }
                 
             }
-            self.sendMessageForSplit(prefix: "cu", message: wifi)
-            self.sendMessageForSplit(prefix: "cp", message: passWord)
-            self.sendMessageForSplit(prefix: "cu", message: wifi)
-            self.sendMessageForSplit(prefix: "cp", message: passWord)
+            self.sendMessageForSplit(prefix: self.updateImagesWithoutUpdateOTASSID, message: wifi)
+            self.sendMessageForSplit(prefix: self.updateImagesWithoutUpdateOTAPassword, message: passWord)
+            self.sendMessageForSplit(prefix: self.updateImagesWithoutUpdateOTASSID, message: wifi)
+            self.sendMessageForSplit(prefix: self.updateImagesWithoutUpdateOTAPassword, message: passWord)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .default) { (alertAction) in}
         alert.addTextField { (textField) in

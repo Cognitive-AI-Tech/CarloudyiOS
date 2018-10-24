@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		574D0C568DB2828EDF60EF06 /* Pods_CarloudyiOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDF24BF1BB43A9FBF3ECE380 /* Pods_CarloudyiOSTests.framework */; };
 		A465920220D1BD700033CCB2 /* CarloudyLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A465920120D1BD700033CCB2 /* CarloudyLocation.swift */; };
-		A49852B5217A62A400C49E84 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49852B4217A62A400C49E84 /* Extensions.swift */; };
+		A49852C0217A787D00C49E84 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49852BF217A787D00C49E84 /* Extensions.swift */; };
 		A49AD73920AA2FCE0029ABF0 /* CarloudyiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A49AD72F20AA2FCE0029ABF0 /* CarloudyiOS.framework */; };
 		A49AD73E20AA2FCE0029ABF0 /* CarloudyiOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49AD73D20AA2FCE0029ABF0 /* CarloudyiOSTests.swift */; };
 		A49AD74020AA2FCE0029ABF0 /* CarloudyiOS.h in Headers */ = {isa = PBXBuildFile; fileRef = A49AD73220AA2FCE0029ABF0 /* CarloudyiOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -34,7 +34,7 @@
 		6F714B3E783FCD27A3BD4946 /* Pods-CarloudyiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarloudyiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-CarloudyiOS/Pods-CarloudyiOS.release.xcconfig"; sourceTree = "<group>"; };
 		9FF06CBEB0F012F890420DE9 /* Pods-CarloudyiOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CarloudyiOSTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CarloudyiOSTests/Pods-CarloudyiOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		A465920120D1BD700033CCB2 /* CarloudyLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarloudyLocation.swift; sourceTree = "<group>"; };
-		A49852B4217A62A400C49E84 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		A49852BF217A787D00C49E84 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		A49AD72F20AA2FCE0029ABF0 /* CarloudyiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CarloudyiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A49AD73220AA2FCE0029ABF0 /* CarloudyiOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CarloudyiOS.h; sourceTree = "<group>"; };
 		A49AD73320AA2FCE0029ABF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -105,9 +105,9 @@
 				A49AD74920AA2FF00029ABF0 /* CarloudyBLE.swift */,
 				A49AD74B20AA30050029ABF0 /* CarloudySpeech.swift */,
 				A465920120D1BD700033CCB2 /* CarloudyLocation.swift */,
+				A49852BF217A787D00C49E84 /* Extensions.swift */,
 				A49AD73220AA2FCE0029ABF0 /* CarloudyiOS.h */,
 				A49AD73320AA2FCE0029ABF0 /* Info.plist */,
-				A49852B4217A62A400C49E84 /* Extensions.swift */,
 			);
 			path = CarloudyiOS;
 			sourceTree = "<group>";
@@ -304,7 +304,7 @@
 				A49AD74C20AA30050029ABF0 /* CarloudySpeech.swift in Sources */,
 				A49AD74A20AA2FF00029ABF0 /* CarloudyBLE.swift in Sources */,
 				A465920220D1BD700033CCB2 /* CarloudyLocation.swift in Sources */,
-				A49852B5217A62A400C49E84 /* Extensions.swift in Sources */,
+				A49852C0217A787D00C49E84 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
